@@ -53,7 +53,7 @@ Data-driven optimization framework delivering:
 --- 
 ## ✨Visual Identity & Branding 
  
-![Beverage Distributor Company Logo](Images/Logo_Capstone_Project.png) 
+<img src="Images/Logo_Capstone_Project.PNG" width="150">
  
 ### Dashboard Navigation Elements 
 <img src="Images/Dashboard_Nav_Back.png" width="150"> <img src="Images/Dashboard_Nav_Next.png" width="150">
@@ -181,10 +181,5 @@ The restart in Phase 3, the architectural decisions, and the final business insi
 - **LinkedIn:** [esanchezlaulhe](www.linkedin.com/in/elena-sanchez-laulhe)
 - **Kaggle:** [esanchezlaulh](https://www.kaggle.com/elenasnchezlaulh)
  
-**Open to opportunities in:** Supply Chain Analytics, Inventory Optimization, Business Intelligence, Data Science 
- 
---- 
- 
-### Final Thoughts 
-**"The best analytics projects aren't just about perfect code - they're about resilience, collaboration, and turning complex data into business value."** 
+ --- 
  
