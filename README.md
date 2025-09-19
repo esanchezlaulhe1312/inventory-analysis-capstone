@@ -1,40 +1,40 @@
-# ?? Beverage Distributor Inventory Analysis 
-## Google Data Analytics Capstone Project 
+# 📊Beverage Distributor Inventory Analysis 
+## ⭐Google Data Analytics Capstone Project 
  
 [![Tableau](https://img.shields.io/badge/Tableau-E97627?style=for-the-badge&logo=Tableau&logoColor=white)](https://public.tableau.com/app/profile/elena.sanchez.laulhe) 
 [![R](https://img.shields.io/badge/R-276DC3?style=for-the-badge&logo=r&logoColor=white)](https://www.r-project.org/) 
 [![Python](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)](https://www.python.org/) 
  
 --- 
-## ?? Executive Summary 
+## ✨Executive Summary 
  
 **End-to-end inventory optimization analysis for a UK beverage distributor managing 275,000+ SKUs across 80 retail locations.** 
  
-### ?? Key Business Impact 
+### Key Business Impact 
 - **$28.8M** in excess working capital identified 
 - **78.4%%** of inventory requires management intervention 
 - **1,390%% ROI** potential from recommended optimizations 
 - **27,997** Class A SKUs at stockout risk 
  
-### ??? Technical Achievement 
+### Technical Achievement 
 Complete data pipeline from 12.8M transaction records to executive dashboards: 
 - Multi-language ETL (Python + R) 
 - Advanced inventory analytics (ABC classification, EOQ, turnover analysis) 
 - Interactive Tableau dashboards for strategic decision-making 
  
-**[?? View Live Dashboards](https://public.tableau.com/app/profile/elena.sanchez.laulhe)** | **[?? Full Report](Documents/Google_Capstone_Report_15-08-25.pdf)** 
+**[View Live Dashboards](https://public.tableau.com/app/profile/elena.sanchez.laulhe)** | **[Full Report](Documents/Google_Capstone_Report_15-08-25.pdf)** 
  
 --- 
-## ?? Project Journey 
+## ✨Project Journey 
  
-### ?? Business Challenge 
+### Business Challenge 
 A UK beverage distributor faced a **critical inventory management crisis**: 
 - Widespread stockouts affecting customer satisfaction 
 - Excessive inventory accumulation tying up working capital 
 - No systematic approach to inventory optimization 
 - 80 retail locations with inconsistent stock management 
  
-### ?? Technical Challenge & Recovery 
+### Technical Challenge & Recovery 
 **The Reality of Data Projects:** This project included a complete restart of Phase 3 due to over-complex architecture. 
  
 **What went wrong:** Initial approach used 6+ dimension tables creating calculation inconsistencies. 
@@ -43,7 +43,7 @@ A UK beverage distributor faced a **critical inventory management crisis**:
  
 **Key learning:** Sometimes the best technical decision is to restart with a better architecture. 
  
-### ?? Final Solution 
+### Final Solution 
 Data-driven optimization framework delivering: 
 - **Immediate actions** for 35.4%% of SKUs at stockout risk 
 - **Working capital recovery** from $28.8M excess inventory 
@@ -51,21 +51,21 @@ Data-driven optimization framework delivering:
 - **Automated monitoring** through executive dashboards 
  
 --- 
-## ?? Visual Identity & Branding 
+## ✨Visual Identity & Branding 
  
 ![Beverage Distributor Company Logo](Images/Logo_Capstone_Project.png) 
  
 ### Dashboard Navigation Elements 
-![Dashboard Navigation Back](Images/Dashboard_Nav_Back.png) ![Dashboard Navigation Next](Images/Dashboard_Nav_Next.png) 
+<img src="Images/Dashboard_Nav_Back.png" width="150"> <img src="Images/Dashboard_Nav_Next.png" width="150">
  
 **Professional branding elements designed for this project using Canva, emphasizing quality, freshness, and reliability through natural mountain imagery combined with beverage iconography.** 
  
 **Design Tools:** Logo and navigation elements created with **Canva Pro** to maintain visual consistency across all project deliverables. 
  
 --- 
-## ?? Interactive Dashboards 
+## ✨Interactive Dashboards 
  
-**[?? Access All Dashboards Here](https://public.tableau.com/app/profile/elena.sanchez.laulhe)** 
+**[Access All Dashboards Here](https://public.tableau.com/app/profile/elena.sanchez.laulhe)** 
  
 ### Dashboard 1: Executive Overview 
 ![Executive Overview](Images/D1_Inventory_Overview.png) 
@@ -84,7 +84,7 @@ Data-driven optimization framework delivering:
 **Key Insights:** $315M procurement spend, vendor concentration risk, lead time optimization 
  
 --- 
-## ?? Methodology & Technical Implementation 
+## ✨Methodology & Technical Implementation 
  
 ### Data Processing Pipeline 
 **1. Data Preparation (Python)** 
@@ -117,7 +117,7 @@ Data-driven optimization framework delivering:
 - **Problem Solving:** Systematic approach to vendor mismatches, geographic inconsistencies 
  
 --- 
-## ?? Key Findings & Recommendations 
+## ✨Key Findings & Recommendations 
  
 ### Critical Business Insights 
 | Metric | Current State | Business Impact | 
@@ -129,32 +129,32 @@ Data-driven optimization framework delivering:
 | **Lead Time Variance** | 7.6 days average | Procurement optimization potential | 
  
 ### Immediate Action Plan 
-**?? 0-30 Days (Revenue Protection)** 
+**0-30 Days (Revenue Protection)** 
 - Emergency replenishment for 27,997 Class A SKUs at stockout risk 
 - Liquidation campaigns for $4.0M in dead stock 
  
-**?? 3-12 Months (Process Optimization)** 
+**3-12 Months (Process Optimization)** 
 - Implement ABC-based inventory policies 
 - Deploy EOQ calculations for top 200 SKUs 
 - Vendor performance improvement programs 
  
-**?? 12-24 Months (Strategic Excellence)** 
+**12-24 Months (Strategic Excellence)** 
 - Predictive analytics for demand forecasting 
 - Automated replenishment systems 
 - Working capital optimization: 35%% reduction target 
  
 --- 
-## ?? Project Impact & Growth 
+## ✨Project Impact & Growth 
  
 ### Personal Learning Journey 
 This project represents 5 months of intensive learning and problem-solving: 
  
-**?? The Restart Moment** 
+**The Restart Moment** 
 - **Challenge:** Phase 3 architectural failure after 2+ weeks of work 
 - **Decision:** Complete restart with simplified, robust design 
 - **Result:** Better final solution and invaluable resilience learning 
  
-**?? Skills Developed** 
+**Skills Developed** 
 - **Technical Resilience:** Recovery from major setbacks 
 - **Business Translation:** Converting 12.8M records into $28.8M insights 
 - **Multi-tool Mastery:** Seamless Python-R-Tableau integration 
@@ -167,24 +167,24 @@ This project represents 5 months of intensive learning and problem-solving:
 - **Continued Learning:** SQL, Power BI, and advanced statistical modeling 
  
 --- 
-## ?? Acknowledgments & Contact 
+## ✨Acknowledgments & Contact 
  
 ### A Journey of Collaboration 
 This project was developed as part of the **Google Data Analytics Professional Certificate Program** and represents the culmination of intensive learning and real-world problem-solving. 
  
 The restart in Phase 3, the architectural decisions, and the final business insights all emerged through iterative collaboration, demonstrating that the best analytics solutions come from asking the right questions and being willing to start over when necessary. 
  
-### ?? Let's Connect 
-**Elena S�nchez-Laulh�** 
-- ?? **GitHub:** [@esanchezlaulhe1312](https://github.com/esanchezlaulhe1312) 
-- ?? **Tableau Public:** [Portfolio](https://public.tableau.com/app/profile/elena.sanchez.laulhe) 
-- ?? **LinkedIn:** Connect with me for opportunities 
-- ?? **Email:** Available upon request 
+### Let's Connect 
+**Elena Sanchez-Laulhe** 
+- **GitHub:** [@esanchezlaulhe1312](https://github.com/esanchezlaulhe1312) 
+- **Tableau Public:** [Portfolio](https://public.tableau.com/app/profile/elena.sanchez.laulhe) 
+- **LinkedIn:** [esanchezlaulhe](www.linkedin.com/in/elena-sanchez-laulhe)
+- **Kaggle:** [esanchezlaulh](https://www.kaggle.com/elenasnchezlaulh)
  
 **Open to opportunities in:** Supply Chain Analytics, Inventory Optimization, Business Intelligence, Data Science 
  
 --- 
  
-### ?? Final Thoughts 
+### Final Thoughts 
 **"The best analytics projects aren't just about perfect code - they're about resilience, collaboration, and turning complex data into business value."** 
  
