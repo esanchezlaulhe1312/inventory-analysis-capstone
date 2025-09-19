@@ -1,26 +1,15 @@
-# RStudio files
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-
-# Data folders (excluded from version control)
-Data/raw/
-Data/processed/
-Data/cleaned/
-
-# Temporary or backup files
-*.tmp
-*.bak
-~$*
-
-# Excel exports
-*.xlsx
-*.docx
-
-# Notebooks
-Scripts/03_InventoryData_Process.R
-
-# OS files
-.DS_Store
-Thumbs.db
+# Inventory Analysis Capstone - .gitignore 
+ 
+# R specific files 
+.Rproj.user 
+.Rhistory 
+.RData 
+.Ruserdata 
+ 
+# Data folders - use Kaggle source instead 
+Data/ 
+Dashboard/ 
+ 
+# Temporary files 
+*.xlsx 
+*.docx 

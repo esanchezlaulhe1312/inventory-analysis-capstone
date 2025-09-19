@@ -291,7 +291,7 @@ stockdf_list <-  lapply(stockdf_list, function(x){
 # ==================
 salesdf_list <-  lapply(salesdf_list, function(x){
   x %>% 
-    select(-any_of(c("startDate","endDate","Approval","SalesDollars")))
+    select(-any_of(c("startDate","endDate","Approval","SalesDollars","Quarter")))
 })
 
 

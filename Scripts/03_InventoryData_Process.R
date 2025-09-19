@@ -7,6 +7,7 @@ library(stats)
 library(skimr)
 library(janitor)
 
+
 # ===================================================================
 # IMPORT PREPARED DATA DOCS TO START THIRD PHASE - DATA PROCESSING
 # ===================================================================
@@ -71,35 +72,6 @@ purchase_orders <- purchase_orders %>%
 po_invoices <- po_invoices %>%
   mutate(across(any_of(cols_chr), as.character))
 
-
-# =======================================================================================
-# CHECK IF INVENTORY ID IS CREATED BY THE COMBINATION OF STORE + _ + CITY + _ + BRAND 
-# =======================================================================================
-# ---------------------------------------------------------------------------------------------------------------------
-## Create the expected InventoryId with mentioned cols from stock_jan as an example that contains Store, City, and Brand
-# ---------------------------------------------------------------------------------------------------------------------
-stock_jan_checked <- stock_jan %>%
-  mutate(
-    expected_InventoryId = paste(Store, City, Brand, sep = "_")
-  )
-
-# ---------------------------------------------------------------------------------------------------------------
-## Compare the actual InventoryId with the expected InventoryId by creating a boolean column to check for a match
-# ---------------------------------------------------------------------------------------------------------------
-stock_jan_checked <- stock_jan_checked %>%
-  mutate(
-    InventoryId_matches_derivation = (InventoryId == expected_InventoryId)
-  )
-
-# --------------------
-## Analyze the results
-# ---------------------
-matching_rows <- sum(stock_jan_checked$InventoryId_matches_derivation, na.rm = TRUE)
-total_rows <- nrow(stock_jan_checked)
-matching_rows
-total_rows ## Giving the results it is confirmed that InventoryId is composed of Store + _ + City + _ + Brand
-
-
 # ================================
 # FIXING DETECTED ERRORS IN DATA
 # ================================
@@ -136,6 +108,37 @@ po_prices$VendorName[po_prices$VendorNumber==1587] <- "VINEYARD BRANDS INC"
 
 purchase_orders$VendorName[purchase_orders$VendorNumber==2000] <- "SOUTHERN WINE & SPIRITS NE"
 purchase_orders$VendorName[purchase_orders$VendorNumber==1587] <- "VINEYARD BRANDS INC"
+
+# =======================================================================================
+# CHECK IF INVENTORY ID IS CREATED BY THE COMBINATION OF STORE + _ + CITY + _ + BRAND 
+# =======================================================================================
+# ---------------------------------------------------------------------------------------------------------------------
+## Create the expected InventoryId with mentioned cols from stock_jan as an example that contains Store, City, and Brand
+# ---------------------------------------------------------------------------------------------------------------------
+stock_jan_checked <- stock_jan %>%
+  mutate(
+    expected_InventoryId = paste(Store, City, Brand, sep = "_")
+  )
+
+# ---------------------------------------------------------------------------------------------------------------
+## Compare the actual InventoryId with the expected InventoryId by creating a boolean column to check for a match
+# ---------------------------------------------------------------------------------------------------------------
+stock_jan_checked <- stock_jan_checked %>%
+  mutate(
+    InventoryId_matches_derivation = (InventoryId == expected_InventoryId)
+  )
+
+stock_jan_checked
+
+# --------------------
+## Analyze the results
+# ---------------------
+matching_rows <- sum(stock_jan_checked$InventoryId_matches_derivation, na.rm = TRUE)
+total_rows <- nrow(stock_jan_checked)
+matching_rows
+total_rows ## Giving the results it is confirmed that InventoryId is composed of Store + _ + City + _ + Brand
+
+
 
 # ----------------------------------------------------------------------
 ## City typing error: TARMSWORTH - TAMWORTH
@@ -287,7 +290,7 @@ sales_Q4
 city_reference_jan <- stock_jan %>%
   select(Store, Brand, City) %>%
   distinct()
-
+city_reference_jan
 # -------------------------------------
 ## Check na city data frame structure
 # -------------------------------------
@@ -306,7 +309,16 @@ length(unique(filter_store$City))
 # STOCK DATA FRAME
 # ==================
 stock_dec$City[is.na(stock_dec$City)] <- "TYWARDREATH"
-skim(stock_jan)
+skim(stock_dec)
+stock_jan <- stock_jan %>%
+  mutate(
+    InventoryId = if_else(
+      Store == "46", #
+      paste(as.character(Store), as.character('TYWARDREATH'), as.character(Brand), sep = "_"),
+      InventoryId
+    )
+  )
+
 
 # PURCHASE ORDERS DATA FRAME
 # ==========================
@@ -353,6 +365,7 @@ sales_Q4 <- sales_Q4 %>%
       InventoryId
     )
   )
+
 # ----------------------------------
 ## NA Values in Volume_ml removal
 # ----------------------------------
@@ -363,9 +376,10 @@ po_prices <- po_prices %>% filter(Brand != 8992,
                                   Brand != 9908,
                                   Brand != 2993,
                                   Brand != 4202)
+
 ## Clean environment 
 rm(stock_jan_checked, vendor_dif_table, matching_rows,rowSums_no,total_rows, city_jan_df, store_dif_jan, store_dif_dec,
-   city_dec_df, city_reference_jan, city_na, filter_store, vol_na, stores_dec_unique,stores_jan_unique, check_table, cols_chr)
+   city_dec_df, city_reference_jan, city_na, filter_store, vol_na, stores_dec_unique,stores_jan_unique, check_table)
 
 
 # ===================================================================
@@ -375,6 +389,10 @@ rm(stock_jan_checked, vendor_dif_table, matching_rows,rowSums_no,total_rows, cit
 ## Initialize an empty list to store all InventoryIds
 # --------------------------------------------------
 all_df_inventoryId <- list()
+purchase_orders <- purchase_orders %>%
+  filter(format(as.Date(PODate), "%Y") == "2016")
+po_invoices <- po_invoices %>%
+  filter(format(as.Date(PODate), "%Y") == "2016")
 
 # SALES DATA FRAME
 # ==================
@@ -391,15 +409,15 @@ all_df_inventoryId[[4]] <- sales_Q4 %>% select(InventoryId)
 # --------------------------------------------------
 ## Extract InventoryId from stock data frames
 # --------------------------------------------------
-all_df_inventoryId[[5]] <- stock_jan %>% select(InventoryId,Description)
-all_df_inventoryId[[6]] <- stock_dec %>% select(InventoryId,Description)
+all_df_inventoryId[[5]] <- stock_jan %>% select(InventoryId)
+all_df_inventoryId[[6]] <- stock_dec %>% select(InventoryId)
 
 # PURCHASE ORDERS DATA FRAME
 # ============================
 # --------------------------------------------------
 ## Extract InventoryId from the purchase orders data frame
 # --------------------------------------------------
-all_df_inventoryId[[7]] <- purchase_orders %>% select(InventoryId,Description, Classification)
+all_df_inventoryId[[7]] <- purchase_orders %>% select(InventoryId)
 
 # --------------------------------------------------
 ## Combine all InventoryIds into a single data frame and get unique ones
@@ -411,9 +429,8 @@ dimtable_inventory <- bind_rows(all_df_inventoryId) %>%
 skim(dimtable_inventory)
 
 
-# ====================================================================================
-# "SPLIT INVENTORYID UNIQUE VALUES OF DIM TABLE INTO STORE + _ + CITY + _ + BRAND"
-# ====================================================================================
+# ========= SPLIT INVENTORYID UNIQUE VALUES OF DIM TABLE INTO STORE + _ + CITY + _ + BRAND =========
+
 dimtable_inventory <- dimtable_inventory %>%
   separate(
     col = InventoryId,        # The column to split
@@ -423,9 +440,18 @@ dimtable_inventory <- dimtable_inventory %>%
   )
 dimtable_inventory
 
-# ===================================================================
-# ADD COLS ONHAND JANUARY AND ONHAND DECEMBER TO INVENTORY ID DIM DF
-# ===================================================================
+
+# --------------------------------------------------------------------------------------
+## Add City "TYWARDREATH" to NA values and fix InventoryId to show 46_TYWARDREATH_(Brand)
+# --------------------------------------------------------------------------------------
+
+dimtable_inventory$City[dimtable_inventory$City == "NA"] <- "TYWARDREATH"
+dimtable_inventory$InventoryId <- str_replace(dimtable_inventory$InventoryId, "^46_NA", "46_TYWARDREATH")
+dimtable_inventory
+
+
+# =================ADD COLS ONHAND JANUARY AND ONHAND DECEMBER TO INVENTORY ID DIM DF==============
+
 # --------------------------------------------------
 ## Summarize on-hand quantities by InventoryId for January
 # --------------------------------------------------
@@ -453,27 +479,181 @@ dimtable_inventory <- dimtable_inventory %>%
     onHand_dec = coalesce(onHand_dec, 0)
   )
 
-# ----------------------------------------------------------
-## Display the first few rows of the updated dimension table
-# ----------------------------------------------------------
-head(dimtable_inventory)
+# =================ADD COLS SALES & PURCHASE PRICE TO INVENTORY ID DIM DF==============
+dimtable_inventory <- dimtable_inventory %>%
+  left_join(po_prices, by = "Brand")
+skim(dimtable_inventory)
 
-# ---------------------------------------------------------------------------------------------------------------------
-## Check the structure to confirm column types (Store and Brand might be character, can convert to numeric if needed)
-# ---------------------------------------------------------------------------------------------------------------------
-str(dimtable_inventory)
+dup_inventory<- dimtable_inventory %>%
+  group_by(InventoryId) %>%
+  filter(n() > 1) %>%
+  ungroup()
+print(dup_inventory)
+
+dimtable_inventory <- dimtable_inventory %>%
+  distinct(InventoryId, .keep_all = TRUE)
+skim(dimtable_inventory)
+
+## FOR SALES PRICES
+# --------------------------------------------------
+## Avg between SalesPrices Stock Jan & Stock Dec
+# --------------------------------------------------
+avg_stock_sales_price <- inner_join(stock_dec, stock_jan, by = "InventoryId")
+
+avg_stock_sales_price <-  avg_stock_sales_price  %>%
+  mutate(avg_sales_price = (SalesPrice.x + SalesPrice.y) / 2) %>% 
+  select(InventoryId, avg_sales_price)
+
+# ----------------------------------------------------------------------------------------------------
+# Next, join these new average prices to the main inventory table, matching by InventoryId
+# ----------------------------------------------------------------------------------------------------
+
+dimtable_inventory <- dimtable_inventory %>%
+  left_join(avg_stock_sales_price, by = "InventoryId") %>%
+  mutate(
+    # Conditionally update the sales price in the main table: if a valid average price exists, use it; otherwise, keep the original price.
+    SalesPrice = if_else(
+      !is.na(avg_sales_price) & avg_sales_price > 0,
+      avg_sales_price,
+      SalesPrice
+    )
+  ) %>%
+  select(-avg_sales_price)
+
+## FOR PURCHASE PRICES
+purchase_prices <- purchase_orders %>% 
+  group_by(InventoryId) %>% 
+  summarise( 
+    PurchasePrice = mean(PurchasePrice),
+    PurchaseQuantity = sum(PurchaseQuantity),
+    .groups = "drop"
+    )
+dimtable_inventory <- dimtable_inventory %>%
+  left_join(purchase_prices, by = "InventoryId") %>%
+  mutate(
+    PurchasePrice = if_else(
+      !is.na(PurchasePrice.y) & PurchasePrice.y > 0,
+      mean(PurchasePrice.y),
+      PurchasePrice.x
+    )
+  ) %>%
+  select(-PurchasePrice.y, -PurchasePrice)
+
+dimtable_inventory <- dimtable_inventory %>%
+  mutate(
+    PurchasePrice = PurchasePrice.x)%>%
+    select(-PurchasePrice.x)
+dimtable_inventory$PurchaseQuantity[is.na(dimtable_inventory$PurchaseQuantity)] <- 0
+
+# Finally, remove any duplicate rows from the resulting table to ensure the data is clean.
+dimtable_inventory <- dimtable_inventory %>%
+  distinct(InventoryId, .keep_all = TRUE)
+
+dimtable_inventory <- dimtable_inventory %>%
+  unite(
+    "brand_descr",
+    Description,   
+    Size,
+    sep = " ",
+    remove = TRUE
+  )
+
+skim(dimtable_inventory)
+sum(dimtable_inventory$PurchaseQuantity)
+sum(purchase_orders$PurchaseQuantity)
+
+# =================CHECK IF ONE DESCRIPTION CORRESPONDS TO MORE THAN ONE BRAND AND CHANGE DESCRIPTION TO 1:1 RELATION ==============
+
+dup_brands <- dimtable_inventory %>%
+  group_by(Brand, brand_descr) %>%
+  filter(n() > 1) %>%
+  ungroup()
+print(dup_brands)
+
+brands_con_multiples_desc <- dimtable_inventory %>%
+  group_by(brand_descr) %>%
+  summarise(
+    NumeroDeDescripcionesUnicas = n_distinct(Brand),
+    Brand = Brand,
+    VendorNumber = VendorNumber,
+  ) %>%
+  filter(NumeroDeDescripcionesUnicas > 1)
+
+print(brands_con_multiples_desc)
+brands_con_multiples_desc <- brands_con_multiples_desc %>%
+  distinct(Brand, .keep_all = TRUE)
+brands_con_multiples_desc
+
+# Change description of the 24 Descriptions found
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==33333] <- "CAVIT MERLOT TRENTINO 187ML 4PK"
+dimtable_inventory <- dimtable_inventory %>%
+  mutate(
+    brand_descr = if_else(
+      VendorNumber == 2000,
+      paste0(brand_descr, "V2000"),
+      brand_descr
+    )
+  )
+dimtable_inventory <- dimtable_inventory %>%
+  mutate(
+    brand_descr = if_else(
+      VendorNumber == 4425,
+      paste0(brand_descr, " V4425"),
+      brand_descr
+    )
+  )
+
+dimtable_inventory <- dimtable_inventory %>%
+  mutate(
+    brand_descr = if_else(
+      VendorNumber == 4692,
+      paste0(brand_descr, " V4692"),
+      brand_descr
+    )
+  )
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==27095] <- "BERTANI VILLA ARVEDI AMARONE 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==43223] <- "CH BEAUCHENE COTES DU RHONE 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==21482] <- "CH LYNCH BAGES PAUILAC 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==25842] <- "CH BOIS DU FIL BRDX 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==35049] <- "CH PESQUIE COTES DU VENTOUX 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==465] <- "CORRALEJO REPOSADO TEQUILA 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand==27262] <- "AVIARY CAB SVGN 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 25842] <- "CH BOIS DU FIL BRDX 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 35049] <- "CH PESQUIE COTES DU VENTOUX 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 37314] <- "DR FRANK JOHANNISBERG RSL 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 44369] <- "GALLO TWIN VLY MOSCATO I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 6579] <- "J LOHR RIVERSTONE CHARD 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 44704] <- "J LOHR RIVERSTONE CHARD 750ML"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 6692] <- "JABOULET COTES DU RHONE PAR 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 25060] <- "JADOT GEVREY CHAMBERTIN 13 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 25056] <- "JADOT GEVREY CHAMBERTIN 13 750ML"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 27778] <- "JADOT SAVIGNY LES BEAUNE 14 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 27782] <- "JADOT SAVIGNY LES BEAUNE 14 750ML"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 26260] <- "LUCE DELLA VITE TOSCANA 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 25137] <- "NICOLE CHANRION COTE DE BROU 750ML"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 25140] <- "NICOLE CHANRION COTE DE BROU 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 1415] <- "OLD GRAND DAD 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 21194] <- "PAUL HOBBS BECKSTOFFER CAB S 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 21737] <- "PAUL HOBBS BECKSTOFFER CAB S 750ML"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 23155] <- "ROCCA DELLE MACIE CHIANTI C 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 26813] <- "SIMONNET-FEBVRE 14 CHABLIS 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 18632] <- "VIBERTI BAROLO BUON PADRE 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 2531] <- "WHISTLEPIG 10 YR OLD RYE 750ML I"
+dimtable_inventory$brand_descr[dimtable_inventory$Brand== 1781] <- "WILD TURKEY RUSSELL'S RSV 750ML I"
+
+skim(dimtable_inventory)
 
 
-# ===============================================================
-# CHECK IF THE DIM TABLE HAS ALL UNIQUE VALUES OF THE REST OF DF
-# ===============================================================
+rm(inventoryid_con_multiples_desc, all_df_inventoryId, avg_stock_sales_price, brands_con_multiples_desc, dup_brands, po_prices, purchase_prices, stock_dec, stock_jan, up_brands, cols_chr)
+
+#==============CHECK IF THE DIM TABLE HAS ALL UNIQUE VALUES OF THE REST OF DF =================
+
 # ---------------------------------------------------
 ## Extract unique InventoryId from the dimension table
 # --------------------------------------------------
 dimtable_inventory_check <- dimtable_inventory %>%
   pull(InventoryId) %>%               # get the vector of all inventoryId
   unique()                      # drop duplicates
-
 # ---------------------------------------------
 ## Put the target data frames into a named list
 # ---------------------------------------------
@@ -482,11 +662,8 @@ df_list_inventoryId <- list(
   sales_Q1        = sales_Q1,
   sales_Q2        = sales_Q2,
   sales_Q3        = sales_Q3,
-  sales_Q4        = sales_Q4,
-  stock_jan       = stock_jan,
-  stock_dec       = stock_dec
+  sales_Q4        = sales_Q4
 )
-
 # --------------------------------------------------
 ## Helper that computes both directions of “missing”
 # --------------------------------------------------
@@ -503,7 +680,6 @@ find_inventory_mismatches <- function(df, df_name) {
     missing_from_df             = list(missing_from_df)
   )
 }
-
 # ----------------------
 ## Build the full report
 # ----------------------
@@ -511,380 +687,289 @@ inventory_mismatch_report <- imap_dfr(
   df_list_inventoryId,
   find_inventory_mismatches
 )
-
 # -------------------
 ## Inspect the report
 # -------------------
 print(inventory_mismatch_report)
 
 
-# =======================================================
-# CREATE A DIMENSION DATA FRAME WITH BRAND UNIQUE VALUES
-# =======================================================
-# ---------------------------------------------------------------------------------------
-## Create a dimension table with one row per unique Brand–Description–Size–Classification
-# ---------------------------------------------------------------------------------------
-dimtable_brand <- po_prices %>%
-  # Select and rename columns to snake_case
-  select(
-    Brand          = Brand,
-    Description    = Description,
-    Size           = Size,
-    Volume_ml      = Volume_ml,
-    Classification = Classification,
-    VendorNumber   = VendorNumber,
-    VendorName     = VendorName
-  ) %>%
-  distinct() %>%                       # Remove duplicate rows
-  arrange(Brand, Description, Size, Volume_ml, Classification)    # Sort for consistent ordering
-dimtable_brand
-# --------------------------------------
-## Inspect the resulting dimension table
-# --------------------------------------
-glimpse(dimtable_brand)
+
+# =================================
+# CREATE A MASTER PURCHASE TABLE
+# =================================
+
+# =================ADD FREIGHT TO PURCHASE_ORDERS DF==============
+
+# Sum freight per PO in invoices (handles multiple invoices per PO)
+po_freight <- po_invoices  %>%
+  group_by(PONumber)  %>%
+  summarise(freight_total = sum(Freight, na.rm = TRUE), .groups = "drop")
+
+# Join to purchase orders and allocate freight by line quantity
+purchase_orders <- purchase_orders  %>%
+  left_join(po_freight, by = "PONumber")  %>%
+  group_by(PONumber)  %>%
+  mutate(
+    qty_po = sum(PurchaseQuantity, na.rm = TRUE),              # total qty in the PO
+    freight_per_unit = if_else(qty_po > 0, freight_total / qty_po, NA_real_),
+    freight_alloc_line = PurchaseQuantity * freight_per_unit   # line-level allocation
+  )  %>%
+  ungroup()
 
 
-# ===================================================================
-# CHECK IF THE DIM TABLE HAS ALL UNIQUE VALUES OF THE REST OF DF
-# ===================================================================
-# -----------------------------------------------
-# Extract unique brands from the dimension table
-# -----------------------------------------------
-dimtable_brand_check <- dimtable_brand %>%
-  pull(Brand) %>%               # get the vector of all brands
-  unique()                      # drop duplicates
+# ================= Grab the header fields from purchase_orders =================
 
-# ---------------------------------------------
-## Put the target data frames into a named list
-# ---------------------------------------------
-df_list_brand <- list(
-  purchase_orders = purchase_orders,
-  sales_Q1        = sales_Q1,
-  sales_Q2        = sales_Q2,
-  sales_Q3        = sales_Q3,
-  sales_Q4        = sales_Q4,
-  stock_jan       = stock_jan,
-  stock_dec       = stock_dec
-)
-
-# ---------------------------------------------------
-## Helper that computes both directions of “missing”
-# ---------------------------------------------------
-find_brand_mismatches <- function(df, df_name) {
-  df_brands        <- unique(df$Brand)
-  missing_from_dim <- setdiff(dimtable_brand_check, df_brands)  # in dimtable but not in df
-  missing_from_df  <- setdiff(df_brands, dimtable_brand_check)  # in df but not in dimtable
-  
-  tibble(
-    data_frame                  = df_name,
-    n_missing_from_dimtable     = length(missing_from_dim),
-    missing_from_dimtable       = list(missing_from_dim),
-    n_missing_from_df           = length(missing_from_df),
-    missing_from_df             = list(missing_from_df)
+purchase_orders <- purchase_orders %>%
+  mutate(
+    total_purchases_value = PurchasePrice*PurchaseQuantity,
+    lead_time = ReceivingDate - PODate
   )
-}
 
-# ----------------------
-## Build the full report
-# ----------------------
-brand_mismatch_report <- imap_dfr(
-  df_list_brand,
-  find_brand_mismatches
+
+purchase_orders <- purchase_orders  %>%
+  mutate(
+    month_no   = month(PODate),           # Month number (1–12)
+    month_name = month(PODate, label = TRUE, abbr = FALSE), # Full month name
+    quarter    = quarter(PODate),         # Quarter (1–4)
+    year       = year(PODate)             # Calendar year
+  )
+
+purchase_orders <- purchase_orders %>%
+  select(InventoryId, PONumber, PODate, month_name, month_no, quarter, PurchasePrice, PurchaseQuantity, total_purchases_value, lead_time)
+
+rm(df_list_inventoryId, inventory_mismatch_report,dimtable_inventory_check, find_inventory_mismatches)
+rm(dup_inventory)
+
+
+# =================================
+# CREATE A MASTER SALES TABLE
+# =================================
+
+sales_orders  <- rbind(
+  sales_Q1,
+  sales_Q2,
+  sales_Q3,
+  sales_Q4
 )
+sales_orders <- sales_orders  %>%
+  mutate(
+    week_no    = isoweek(SalesDate),
+    month_no   = month(SalesDate),
+    month_name = month(SalesDate, label = TRUE, abbr = FALSE),
+    quarter    = quarter(SalesDate),
+    year       = year(SalesDate),
+    total_sales_value = SalesQuantity*SalesPrice
+  )
+sales_orders <- sales_orders %>% select(-Store,-Brand,-year,-week_no)
 
-# -------------------
-## Inspect the report
-# -------------------
-print(brand_mismatch_report)
+rm(sales_Q1,sales_Q2,sales_Q3,sales_Q4)
+skim(sales_orders)
 
-
-# ===========================================================
-# CREATE A DIMENSION DATA FRAME WITH PONUMBER UNIQUE VALUES
-# ===========================================================
-# --------------------------------------------
-## Grab the header fields from purchase_orders
-# --------------------------------------------
-po_header_orders <- purchase_orders %>%
-  select(
-    PONumber        = PONumber,
-    InvoiceDate     = InvoiceDate,
-    PayDate         = PayDate,
-  ) %>%
-  distinct()
-
-# --------------------------------------------------
-## Pull in freight from po_invoices (one row per PO)
-# --------------------------------------------------
-po_freight <- po_invoices %>%
-  select(
-    PONumber = PONumber,
-    Freight
-  ) %>%
-  group_by(PONumber) %>%
+# ===========================================
+# ADD SALES QUANTITY TO DIMTABLE INVENTORY
+# ==========================================
+sales_qty <- sales_orders %>%
+  select(InventoryId, SalesQuantity)
+sales_qty <-sales_qty %>% 
+  group_by(InventoryId) %>% 
   summarise(
-    Freight = sum(Freight, na.rm = TRUE),
+    SalesQuantity = sum(SalesQuantity),
     .groups = "drop"
   )
-
-# ----------------------------------------
-## Left-join freight onto the orders header
-# ----------------------------------------
-dimtable_purchases <- po_header_orders %>%
-  left_join(po_freight, by = "PONumber") %>%
-  arrange(PONumber)
-
-skim(dimtable_purchases)
-
-
-# =========================================================================
-# REMOVE REDUNDANT COLUMNS THAT APPEAR IN FACT DF AND IN DIMENSION TABLES
-# =========================================================================
-# --------------------------------------------------------------
-## Define which dimension-attributes to drop (keep only the FKs)
-# --------------------------------------------------------------
-dim_attr_cols <- c(
-  # drop everything in the inventory dim except its PK
-  setdiff(names(dimtable_inventory), "InventoryId"),
-  # drop everything in the brand dim except its PK
-  # (note lowercase ‘brand’ if that’s how you named it)
-  setdiff(names(dimtable_brand),    "brand"),    
-  # drop everything in the PO dim except its PK (fixed typo here)
-  setdiff(names(dimtable_purchases), "PONumber")  
-) %>%
-  unique() %>%              
-  # make ABSOLUTELY sure we never drop any Brand column
-  setdiff(c("Brand", "Brand"))
-
-# --------------------------
-## List all your fact tables
-# --------------------------
-fact_tables <- list(
-  purchase_orders = purchase_orders,
-  po_invoices      = po_invoices,
-  po_prices        = po_prices,
-  sales_Q1         = sales_Q1,
-  sales_Q2         = sales_Q2,
-  sales_Q3         = sales_Q3,
-  sales_Q4         = sales_Q4,
-  stock_jan        = stock_jan,
-  stock_dec        = stock_dec
-)
-
-# ------------------------------------------------------
-## Function to drop those dim-attributes from a given df
-# ------------------------------------------------------
-clean_fact <- function(df) {
-  df %>%
-    select(-any_of(dim_attr_cols))
-}
-
-# -------------------------
-## Apply to all fact tables
-# -------------------------
-cleaned_facts <- fact_tables %>%
-  map(clean_fact)
-
-# -------------------------------------------------------
-## Overwrite the originals with their cleaned versions
-# -------------------------------------------------------
-list2env(cleaned_facts, envir = .GlobalEnv)
-
-
-# ==================================================================
-# REMOVE OBSOLETE DATA FRAMES AND COLS FROM THE GLOBAL ENVIRONMENT
-# ==================================================================
-# ---------------------------------------
-## Compute distinct‐price stats per Brand
-# ---------------------------------------
-price_check <- purchase_orders %>%
-  group_by(Brand) %>%
-  summarise(
-    n_prices  = n_distinct(PurchasePrice),          # how many different PurchasePrices
-    min_price = min(PurchasePrice, na.rm = TRUE),   # lowest price seen
-    max_price = max(PurchasePrice, na.rm = TRUE),   # highest price seen
-    .groups   = "drop"
-  )
-
-# --------------------------
-## Confirm they are the same
-# --------------------------
-all_consistent <- all(price_check$n_prices == 1)
-
-if (all_consistent) {
-  print("✅ Every Brand has exactly one PurchasePrice in purchase_orders.")
-} else {
-  print(
-    price_check %>%
-      filter(n_prices > 1) %>%
-      arrange(desc(n_prices))
-  )
-}
-
-# ----------------------------
-## Tidy up your temporary list
-# ----------------------------
-rm(all_df_inventoryId,brand_mismatch_report,df_list_brand,df_list_inventoryId,inventory_mismatch_report,find_brand_mismatches,find_inventory_mismatches, fact_tables,
-   cleaned_facts, dim_attr_cols,dimtable_brand_check,dimtable_inventory_check,clean_fact,dec_on_hand,jan_on_hand, po_freight, po_header_orders,po_invoices, stock_dec, 
-   stock_jan, po_prices, price_check, all_consistent)
-
-
-# ===================================
-# DATA CONSOLIDATION AND VALIDATION
-# ===================================
-# ----------------------------------
-## Creating a Function to count zeros
-# ----------------------------------
-
-count_zeros <- function(df,df_name){
-  df %>% 
-    select(where(is.numeric)) %>% 
-    summarise(across(everything(),~sum(.x==0))) %>% 
-    pivot_longer(cols=everything(), names_to = "column",
-                 values_to = "ZeroCount") %>% 
-    filter(ZeroCount > 0) %>% 
-    mutate(Dataset=df_name) %>% 
-    relocate(Dataset)
-}
-
-## SALES DATA FRAMES 
-# ==================
-# -------------------------------
-## Identifying 0 in numeric data
-# -------------------------------
-count_zeros(sales_Q1, "sales_Q1")
-count_zeros(sales_Q2, "sales_Q2")
-count_zeros(sales_Q3, "sales_Q3")
-count_zeros(sales_Q4, "sales_Q4")
-
-### Removal of the obs. = 0 
-sales_Q1 <- sales_Q1 %>% filter(SalesPrice != 0)
-sales_Q2 <- sales_Q2 %>% filter(SalesPrice != 0)
-sales_Q3 <- sales_Q3 %>% filter(SalesPrice != 0)
-sales_Q4 <- sales_Q4 %>% filter(SalesPrice != 0)
-
-## PURCHASE ORDERS DATA FRAMES 
-# =============================
-# -------------------------------
-## Identifying 0 in numeric data
-# -------------------------------
-count_zeros(purchase_orders, "purchase_orders")
-purchase_orders <- purchase_orders %>% filter(PurchasePrice != 0)
-
-
-# ==========================
-# COLUMN SIZE NEW STRUCTURE
-# ==========================
-# ----------------------------
-## See weight % per size value
-# ----------------------------
-percent_size <- tabyl(dimtable_brand$Size)
-adorn_pct_formatting((percent_size),digits =2,affix_sign=TRUE)
-
-# -------------------------------
-## Split col size by each space
-# -------------------------------
-dimtable_brand <- dimtable_brand %>%
-  separate(Size, into = c("Vol", "UnitQty", "Unit"), sep = " ", fill = "right")
-
-# ----------------------------------------------------------------------------------------------
-## Change Unit col values: /x by GIFT INCL., PK by PACK, NA by PC and any other value to OTHER
-# ----------------------------------------------------------------------------------------------
-dimtable_brand$Unit <- case_when(
-  grepl("^\\d+/$", dimtable_brand[[5]]) ~ "GIFT INCL.",
-  grepl("^\\.\\./$", dimtable_brand[[5]]) ~ "GIFT INCL.",
-  dimtable_brand[[5]] %in% c("PK", "P") ~ "PACK",
-  is.na(dimtable_brand[[5]]) ~ "PC",
-  TRUE ~ "OTHER"
-)
-
-# ---------------------------------
-## Change UnitQty col values NA by 1
-# ---------------------------------
-dimtable_brand$UnitQty[is.na(dimtable_brand$UnitQty)] <- 1
-
-# -------------------------------------------------------------
-## Create a new col named UnitNo with values of UnitQty and Unit
-# -------------------------------------------------------------
-dimtable_brand$UnitNo <- paste(dimtable_brand$UnitQty, toupper(dimtable_brand$Unit))
-
-# ----------------------------------
-## Delete cols Vol, UnitQty and Unit
-# ----------------------------------
-dimtable_brand$Vol <- NULL
-dimtable_brand$Unit <- NULL
-dimtable_brand$UnitQty <- NULL
-
-percent_UnitNo <- tabyl(dimtable_brand$UnitNo)
-adorn_pct_formatting((percent_UnitNo),digits =2,affix_sign=TRUE)
-
-percent_vol <- tabyl(dimtable_brand$Volume_ml)
-adorn_pct_formatting((percent_vol),digits =2,affix_sign=TRUE)
-
-
-# ===================================================
-# IDENTIFYING THE STORES ASSIGNED TO ONE UNIQUE CITY
-# ===================================================
-city_summary <- dimtable_inventory %>%
-  group_by(City) %>%
-  summarise(
-    Stores = paste(sort(unique(Store)), collapse = ", "),
-    Num_Stores = n_distinct(Store),
-    Num_Brands = n_distinct(Brand),
-    .groups = 'drop'
-  ) %>%
-  arrange(City)
-
-# --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-## These 8 Cities have more than one store (): "DONCASTER"(2) "EANVERNESS"(3) GOULCREST"(2) "HARDERSFIELD"(2) "HORNSEY"(4) "LARNWICK"(2) "MOUNTMEND"(4) "TAMWORTH"(2)
-# --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-city_summary
-
-rm(percent_size,percent_UnitNo,percent_vol,count_zeros,city_summary)
-
-
-# ==================================================================
-# SEE SUMMARY AND GENERAL STATISTICS FIGURES OF CLEANED DATA FRAMES
-# ==================================================================
-# Dimension Tables
-# ================
-skim(dimtable_brand)
+sum(sales_qty$SalesQuantity)
+sum(purchase_orders$PurchaseQuantity)
+sum(dimtable_inventory$PurchaseQuantity)
+dimtable_inventory <- dimtable_inventory %>%
+  left_join(sales_qty, by = "InventoryId")
 skim(dimtable_inventory)
-skim(dimtable_purchases)
+dimtable_inventory$SalesQuantity[is.na(dimtable_inventory$SalesQuantity)] <- 0
+sum(dimtable_inventory$SalesQuantity)
 
-# Fact Tables
-# ============
+# =====================================================================================================================
+# CONFIRM IF CLASSIFICATION 1 BELONGS TO BEVERAGES KNOWN AS SPIRITS AND CLASSIFICATION 2 BELONGS TO WINES AND LIQUEURS
+# =====================================================================================================================
+# -----------------------------------------
+# Define keywords for high-alcohol spirits
+# -----------------------------------------
+spirit_keywords <- c("VODKA", "WHISKEY", "WHISKY", "RUM", "GIN", "TEQUILA", "SCOTCH", "BRANDY", "BOURBON")
+
+# ------------------------------------------------------------------
+# Define keywords for lower-alcohol drinks like wine and liqueurs
+# ------------------------------------------------------------------
+wine_keywords <- c("WINE", "CHARDONNAY", "MERLOT", "PINOT", "CABERNET", "SAUVIGNON", "RIESLING", "LIQUEUR", "SCHNAPPS","CHARD","WINES","WINERY","CAVA")
+
+# ------------------------------------------------------------------
+# Create a regex pattern from the keywords
+# ------------------------------------------------------------------
+spirit_pattern <- paste(spirit_keywords, collapse = "|")
+wine_pattern <- paste(wine_keywords, collapse = "|")
+
+# --------------------------------------------------------------------------------------------------------------
+# Analysis for Spirits -Filter for descriptions containing spirit keywords and check their classification
+# --------------------------------------------------------------------------------------------------------------
+spirit_classification <- dimtable_inventory %>%
+  filter(str_detect(brand_descr, spirit_pattern) | str_detect(VendorName, spirit_pattern)) %>%
+  tabyl(Classification) %>%
+  adorn_totals("row") %>%
+  adorn_percentages("col") %>%
+  adorn_pct_formatting(digits = 1) %>%
+  adorn_ns()
+
+# ------------------------------------------------------------------------------------------------------------------------------
+# Analysis for Wines & Liqueurs -Filter for descriptions containing wine/liqueur keywords and check their classification
+# ------------------------------------------------------------------------------------------------------------------------------
+wine_classification <- dimtable_inventory %>%
+  filter(str_detect(brand_descr, wine_pattern)| str_detect(VendorName, spirit_pattern)) %>%
+  tabyl(Classification) %>%
+  adorn_totals("row") %>%
+  adorn_percentages("col") %>%
+  adorn_pct_formatting(digits = 1) %>%
+  adorn_ns()
+
+# ----------------------------
+# Print the resulting tables
+# ----------------------------
+print("Classification for products identified as Spirits:")
+print(spirit_classification)
+
+print("Classification for products identified as Wine/Liqueurs:")
+print(wine_classification)
+
+# -----------------------------------------------------------------------------------------------------
+# Change Classification Values to Spirits for Classification 1 & Wine & Liqueurs for Classification 2
+# -----------------------------------------------------------------------------------------------------
+dimtable_inventory <- dimtable_inventory %>%
+  mutate(
+    Classification = recode(Classification,
+                            "1" = "SPIRITS",
+                            "2" = "WINES & LIQUEURS")
+  )
+# -----------------------
+# Verify the new levels
+# -----------------------
+glimpse(dimtable_inventory)
+levels(dimtable_inventory$Classification)
+
+dimtable_inventory <- dimtable_inventory %>%
+  select(-Volume_ml)
+
+
+rm(wine_classification, spirit_classification, spirit_keywords,wine_pattern, spirit_pattern,wine_keywords, jan_on_hand,dec_on_hand,po_freight, sales_qty)
+
+
+# ------------------------------------------------------------------------------------------
+# ********************* LAST DF CONFIGURATION BEFORE EXPORT CSV *************************
+# -----------------------------------------------------------------------------------------
+po_lead <- purchase_orders %>%
+  group_by(PONumber) %>%
+  summarise(
+    lead_time = mean(lead_time),
+    .groups = "drop"
+  )
+#------------------------------------------------
+# ----------- DIM INVENTORY -----------------------
+#------------------------------------------------
+
+dimtable_inventory <- dimtable_inventory%>%
+  mutate(
+    InventoryId = InventoryId,
+    Store = Store,
+    City = City,
+    Brand = Brand,
+    Description = brand_descr,
+    Classification = Classification,
+    VendorNumber = VendorNumber,
+    VendorName = VendorName,
+    PurchasePrice = PurchasePrice,
+    SalesPrice = SalesPrice, 
+    onhand_jan = onHand_jan,
+    PurchaseQuantity = PurchaseQuantity,
+    SalesQuantity =SalesQuantity,
+    onhand_dec = onHand_jan + PurchaseQuantity - SalesQuantity
+  )
+dimtable_inventory <- dimtable_inventory %>%
+  select(-onHand_dec, -onHand_jan, -brand_descr)
+#------------------------------------------------
+# ----------- PO INVOICES -----------------------
+#------------------------------------------------
+po_invoices <- po_invoices %>%
+  mutate(
+    days_to_invoice = InvoiceDate  - PODate,
+    days_to_pay =  PayDate - InvoiceDate
+  )
+po_invoices  <- po_invoices %>%
+  select(-InvoiceDate,-PayDate)
+po_invoices <- po_invoices %>%
+  left_join(po_lead, by= "PONumber")
+rm(po_lead)
+
+#----------------------------------------------------
+# ----------- PURCHASE ORDERS -----------------------
+#----------------------------------------------------
+purchase_orders <- purchase_orders %>%
+  select(-PODate, -total_purchases_value)
+
+purchase_orders <- purchase_orders %>%
+  group_by(InventoryId, PONumber, month_no, month_name, quarter) %>%
+  summarise(
+    PurchaseQuantity = sum(PurchaseQuantity),
+    PurchasePrice = mean(PurchasePrice),
+    .groups = "drop"
+  )
+sum(purchase_orders$PurchaseQuantity)
+
+#----------------------------------------------------
+# ----------- SALES ORDERS --------------------------
+#----------------------------------------------------
+sales_orders <- sales_orders %>%
+  select(-SalesDate, -total_sales_value)
+
+sales_orders <- sales_orders %>%
+  group_by(InventoryId, month_no, month_name, quarter) %>%
+  summarise(
+    SalesQuantity = sum(SalesQuantity),
+    SalesPrice = mean(SalesPrice),
+    .groups = "drop"
+  )
+sum(sales_orders$SalesQuantity)
+
+
+# =======================================
+# OVERVIEW OF FINAL CLEANED DATA SETS
+# =======================================
+# ========= DIMTABLE INVENTORY ==============
+
+skim(dimtable_inventory)
+
+#--------------------------------------------
+# ========= PURCHASES MASTER ==============
+
 skim(purchase_orders)
-skim(sales_Q1)
-skim(sales_Q2)
-skim(sales_Q3)
-skim(sales_Q4)
 
+#--------------------------------------------
+# ========= SALES MASTER ==============
+
+skim(sales_orders)
+
+#-------------------------------------------
+# ========= PO INVOICES ==============
+
+skim(po_invoices)
+
+#-------------------------------------------
 
 # ==========================================================
 # EXPORT CSV DOCUMENTS - PHASE 3: PROCESS - FINISHED
 # ==========================================================
 # Dimension Tables
 # ================
-write_csv(dimtable_brand,file = "Data/cleaned/dimtable_brandid_cleaned.csv")
 write_csv(dimtable_inventory,file = "Data/cleaned/dimtable_inventoryid_cleaned.csv")
-write_csv(dimtable_purchases,file = "Data/cleaned/dimtable_ponumber_cleaned.csv")
+write_csv(purchase_orders, file = "Data/cleaned/purchase_orders_cleaned.csv")
+write_csv(sales_orders,file = "Data/cleaned/sales_orders_cleaned.csv")
+write_csv(po_invoices, file = "Data/cleaned/po_invoices.csv")
 
-## Fact Tables
-# ============
-# --------------------------------
-## Purchase Orders Data Frame
-# --------------------------------
-write_csv(purchase_orders,file = "Data/cleaned/purchase_orders_cleaned.csv")
 
-# --------------------------------
-## Sales by Quarter Data Frames
-# --------------------------------
-## Sales in 2016 divided by Quarters
-write_csv(sales_Q1,file = "Data/cleaned/sales_q1_cleaned.csv")
-write_csv(sales_Q2,file = "Data/cleaned/sales_q2_cleaned.csv")
-write_csv(sales_Q3,file = "Data/cleaned/sales_q3_cleaned.csv")
-write_csv(sales_Q4,file = "Data/cleaned/sales_q4_cleaned.csv")
 
-getwd()
-
+ls()
+rm(dimtable_inventory, purchase_orders,sales_orders, po_invoices)
 
