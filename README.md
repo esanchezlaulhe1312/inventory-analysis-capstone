@@ -41,10 +41,9 @@ Complete data pipeline from 12.8M transaction records to executive dashboards:
 /
 ├─ Scripts/ # R + Python scripts
 ├─ Documents/ # Reports
-├─ Images/ # Dashboard thumbnails
+├─ Images/
 ├─ Data/
 ├─ README.md
-└─ LICENSE
  
 ### Business Challenge 
 A UK beverage distributor faced a **critical inventory management crisis**: 
@@ -187,7 +186,7 @@ This project represents 5 months of intensive learning and problem-solving:
  
 --- 
 ## ✨Acknowledgments & Contact 
- 
+
 ### A Journey of Collaboration 
 This project was developed as part of the **Google Data Analytics Professional Certificate Program** and represents the culmination of intensive learning and real-world problem-solving. 
  
@@ -195,8 +194,6 @@ The restart in Phase 3, the architectural decisions, and the final business insi
 
 --- 
 ## ⚖️ Data Ethics & Licenses
-
-Code License: MIT License
 
 Data License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 Original Kaggle dataset: [Inventory Analysis Case Study by author name](https://www.kaggle.com/datasets/bhanupratapbiswas/inventory-analysis-case-study)
