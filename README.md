@@ -12,8 +12,8 @@
  
 ### Key Business Impact 
 - **$28.8M** in excess working capital identified 
-- **78.4%%** of inventory requires management intervention 
-- **1,390%% ROI** potential from recommended optimizations 
+- **78.4%** of inventory requires management intervention 
+- **1,39% ROI** potential from recommended optimizations 
 - **27,997** Class A SKUs at stockout risk 
  
 ### Technical Achievement 
@@ -25,7 +25,26 @@ Complete data pipeline from 12.8M transaction records to executive dashboards:
 **[View Live Dashboards](https://public.tableau.com/app/profile/elena.sanchez.laulhe)** | **[Full Report](Documents/Google_Capstone_Report_15-08-25.pdf)** 
  
 --- 
+
 ## ✨Project Journey 
+
+- **Ask:** Defined business case (inventory optimization).  
+- **Prepare:** Cleaned datasets, standardised variables, removed duplicates.  
+- **Process:** Built master tables (purchases, sales, inventory).  
+- **Analyse:** Generated KPIs (coverage, turnover, ABC, vendor score).  
+- **Share:** Created 4 Tableau dashboards.  
+- **Act:** Recommendations for reducing excess and mitigating stockouts.
+
+---
+
+## 📂 Repository Structure
+/
+├─ Scripts/ # R + Python scripts
+├─ Documents/ # Reports
+├─ Images/ # Dashboard thumbnails
+├─ Data/
+├─ README.md
+└─ LICENSE
  
 ### Business Challenge 
 A UK beverage distributor faced a **critical inventory management crisis**: 
@@ -45,7 +64,7 @@ A UK beverage distributor faced a **critical inventory management crisis**:
  
 ### Final Solution 
 Data-driven optimization framework delivering: 
-- **Immediate actions** for 35.4%% of SKUs at stockout risk 
+- **Immediate actions** for 35.4% of SKUs at stockout risk 
 - **Working capital recovery** from $28.8M excess inventory 
 - **Strategic procurement** improvements with vendor analysis 
 - **Automated monitoring** through executive dashboards 
@@ -69,7 +88,7 @@ Data-driven optimization framework delivering:
  
 ### Dashboard 1: Executive Overview 
 ![Executive Overview](Images/D1_Inventory_Overview.png) 
-**Key Insights:** $48.5M total inventory value, 35.4%% stockout risk, optimal vs non-optimal distribution 
+**Key Insights:** $48.5M total inventory value, 35.4% stockout risk, optimal vs non-optimal distribution 
  
 ### Dashboard 2: Risk Analysis 
 ![Risk Analysis](Images/D2_Stock_Risk_Analysis.png) 
@@ -98,7 +117,7 @@ Data-driven optimization framework delivering:
 - Data quality improvements: zero duplicates, complete referential integrity 
  
 **3. Advanced Analytics (R)** 
-- ABC Classification: Identified top 26.8%% of SKUs driving 80%% of sales value 
+- ABC Classification: Identified top 26.8% of SKUs driving 80% of sales value 
 - Inventory turnover analysis with risk categorization 
 - EOQ calculations for cost optimization 
 - Coverage analysis: months of demand vs actual stock levels 
@@ -122,10 +141,10 @@ Data-driven optimization framework delivering:
 ### Critical Business Insights 
 | Metric | Current State | Business Impact | 
 |--------|--------------|----------------| 
-| **Inventory at Risk** | 78.4%% non-optimal | $28.8M excess working capital | 
-| **Stockout Risk** | 35.4%% of portfolio | Revenue protection priority | 
+| **Inventory at Risk** | 78.4% non-optimal | $28.8M excess working capital | 
+| **Stockout Risk** | 35.4% of portfolio | Revenue protection priority | 
 | **Dead Stock** | 657,649 units | $10.5M liquidation opportunity | 
-| **Vendor Concentration** | Top 5 control 45%% | Supply chain risk mitigation needed | 
+| **Vendor Concentration** | Top 5 control 45% | Supply chain risk mitigation needed | 
 | **Lead Time Variance** | 7.6 days average | Procurement optimization potential | 
  
 ### Immediate Action Plan 
@@ -173,8 +192,20 @@ This project represents 5 months of intensive learning and problem-solving:
 This project was developed as part of the **Google Data Analytics Professional Certificate Program** and represents the culmination of intensive learning and real-world problem-solving. 
  
 The restart in Phase 3, the architectural decisions, and the final business insights all emerged through iterative collaboration, demonstrating that the best analytics solutions come from asking the right questions and being willing to start over when necessary. 
- 
-### Let's Connect 
+
+--- 
+## ⚖️ Data Ethics & Licenses
+
+Code License: MIT License
+
+Data License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Original Kaggle dataset: [Inventory Analysis Case Study by author name](https://www.kaggle.com/datasets/bhanupratapbiswas/inventory-analysis-case-study)
+Ethics: This project is for academic purposes only. Data was anonymised and assumptions were made; results should not be used for production decisions.
+
+---
+
+### Let's Connect
+
 **Elena Sanchez-Laulhe** 
 - **GitHub:** [@esanchezlaulhe1312](https://github.com/esanchezlaulhe1312) 
 - **Tableau Public:** [Portfolio](https://public.tableau.com/app/profile/elena.sanchez.laulhe) 
